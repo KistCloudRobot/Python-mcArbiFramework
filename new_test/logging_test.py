@@ -1,4 +1,3 @@
-from arbi_agent.configuration import BrokerType
 from arbi_agent.agent.arbi_agent import ArbiAgent
 from arbi_agent.agent import arbi_agent_excutor
 from arbi_agent.agent.logger.agent_action import AgentAction

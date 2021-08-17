@@ -1,7 +1,8 @@
+import uuid
 import time
 import threading
 
-from ..configuration import AgentMessageAction
+from arbi_agent.configuration import AgentMessageAction
 
 
 class ArbiAgentMessage:
@@ -24,7 +25,12 @@ class ArbiAgentMessage:
         if "conversation_id" in kwds:
             self.conversation_id = kwds["conversation_id"]
         else:
-            self.conversation_id = str(time.time() % 1)[2:8]
+            self.conversation_id = str(uuid.uuid4())
+
+        if "timestamp" in kwds:
+            self.timestamp = kwds["timestamp"]
+        else:
+            self.timestamp = int(time.time() * 1000)
 
         if (self.action is AgentMessageAction.Query
                 or self.action is AgentMessageAction.Request
@@ -58,3 +64,6 @@ class ArbiAgentMessage:
         with self.lock:
             self.response = response
             self.lock.notify()
+
+    def get_timestamp(self):
+        return self.timestamp

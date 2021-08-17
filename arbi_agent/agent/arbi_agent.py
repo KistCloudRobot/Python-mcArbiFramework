@@ -1,9 +1,9 @@
 from abc import *
+from typing import Union
 
 from arbi_agent.agent.communication.arbi_agent_message_toolkit import ArbiAgentMessageToolkit
 from arbi_agent.agent.logger.logger_manager import LoggerManager
-
-from typing import Union
+from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
 
 
 class ArbiAgent(metaclass=ABCMeta):
@@ -41,6 +41,9 @@ class ArbiAgent(metaclass=ABCMeta):
 
     def is_running(self):
         return self.running
+
+    def get_full_message(self) -> ArbiAgentMessage:
+        return self.message_toolkit.get_full_message()
 
     def on_start(self):
         pass

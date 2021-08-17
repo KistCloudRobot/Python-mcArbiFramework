@@ -1,5 +1,6 @@
 import threading
 import time
+import uuid
 
 
 class LTMMessage:
@@ -20,7 +21,7 @@ class LTMMessage:
         if "conversation_id" in kwds:
             self.conversation_id = kwds["conversation_id"]
         else:
-            self.conversation_id = str(time.time() % 1)[2:8]
+            self.conversation_id = str(uuid.uuid4())
 
         self.lock = threading.Condition()
         self.response = None

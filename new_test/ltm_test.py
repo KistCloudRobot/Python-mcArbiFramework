@@ -1,13 +1,15 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
 from arbi_agent.ltm.data_source import DataSource
-from arbi_agent.configuration import BrokerType
 from arbi_agent.agent import arbi_agent_excutor
-from time import sleep
+from arbi_agent.model import generalized_list_factory as GLFactory
 
 
 class MyDataSource(DataSource):
     def on_notify(self, content):
         print("on notify : " + content)
+        gl = GLFactory.new_gl_from_gl_string(content)
+        val = gl.get_expression(0).as_value().int_value()
+        print("val :", val, ", type :", type(val))
 
 
 class TestAgent(ArbiAgent):
@@ -45,8 +47,8 @@ class TestAgent(ArbiAgent):
         subscribe_id = dc.subscribe("(rule (fact (test $var)) --> (notify (test $var)))")
 
         input()
-        print("assert fact (test \"test2\")")
-        dc.assert_fact("(test \"test2\")")
+        print("assert fact (test 3)")
+        dc.assert_fact("(test 3)")
 
         input()
         print("update fact (test \"test2\") to (test \"test3\"))")

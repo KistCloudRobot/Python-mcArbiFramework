@@ -1,5 +1,6 @@
 import threading
 import concurrent.futures
+from typing import Dict
 
 from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
 from arbi_agent.agent.communication.arbi_message_queue import ArbiMessageQueue
@@ -27,6 +28,8 @@ class ArbiAgentMessageToolkit:
         self.toolkit_thread.daemon = True
         self.toolkit_thread.start()
 
+        self.received_message_map: Dict[str, ArbiAgentMessage] = dict()
+
     def close(self):
         self.adaptor.close()
 
@@ -38,6 +41,10 @@ class ArbiAgentMessageToolkit:
             message = self.queue.blocking_dequeue(None, 0.5)
             if message is not None:
                 self.dispatch(message)
+
+    def get_full_message(self) -> ArbiAgentMessage:
+        thread_name = threading.current_thread().name
+        return self.received_message_map[thread_name]
 
     def dispatch(self, message: ArbiAgentMessage):
         action = message.get_action()
@@ -75,26 +82,38 @@ class ArbiAgentMessageToolkit:
         self.wating_response.remove(response_message)
 
     def dispatch_data_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         sender = message.get_sender()
         data = message.get_content()
         self.on_data(sender, data)
 
+        self.received_message_map.pop(thread_name)
+
     def dispatch_notify_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         sender = message.get_sender()
         data = message.get_content()
         self.on_notify(sender, data)
 
+        self.received_message_map.pop(thread_name)
+
     def dispatch_query_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         request_id = message.get_conversation_id()
         sender = message.get_sender()
         query = message.get_content()
-
         response = self.on_query(sender, query)
-
         if response is None:
             response = "ok"
-
         self.send_response_message(request_id, sender, response)
+
+        self.received_message_map.pop(thread_name)
 
     # def dispatch_release_stream_task(self, message):
     #     sender = message.get_sender()
@@ -114,38 +133,52 @@ class ArbiAgentMessageToolkit:
     #    self.send_response_message(request_id, sender, response)
 
     def dispatch_request_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         request_id = message.get_conversation_id()
         sender = message.get_sender()
         request = message.get_content()
-
         response = self.on_request(sender, request)
-
         if response is None:
             response = "ok"
-
         self.send_response_message(request_id, sender, response)
+
+        self.received_message_map.pop(thread_name)
 
     def dispatch_subscribe_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         request_id = message.get_conversation_id()
         sender = message.get_sender()
         request = message.get_content()
-
         response = self.on_subscribe(sender, request)
-
         if response is None:
             response = "ok"
-
         self.send_response_message(request_id, sender, response)
 
+        self.received_message_map.pop(thread_name)
+
     def dispatch_system_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         sender = message.get_sender()
         data = message.get_content()
         self.on_system(sender, data)
 
+        self.received_message_map.pop(thread_name)
+
     def dispatch_unsubscribe_task(self, message):
+        thread_name = threading.current_thread().name
+        self.received_message_map[thread_name] = message
+
         sender = message.get_sender()
         request = message.get_content()
         self.on_unsubscribe(sender, request)
+
+        self.received_message_map.pop(thread_name)
 
     def send_response_message(self, request_id, sender, response):
         message = ArbiAgentMessage(sender=self.agent_url, receiver=sender, action=AgentMessageAction.Response,

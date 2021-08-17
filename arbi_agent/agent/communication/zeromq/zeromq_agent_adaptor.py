@@ -59,9 +59,11 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
             action = AgentMessageAction[data["action"]]
             content = data["content"]
             conversation_id = data["conversationID"]
+            timestamp = data["timestamp"]
 
             agent_message = ArbiAgentMessage(sender=sender, receiver=receiver, action=action,
-                                             content=content, conversation_id=conversation_id)
+                                             content=content, conversation_id=conversation_id,
+                                             timestamp=timestamp)
             self.queue.enqueue(agent_message)
 
     def send(self, message: ArbiAgentMessage):
@@ -72,6 +74,7 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
         data["action"] = message.get_action().name
         data["content"] = message.get_content()
         data["conversationID"] = message.get_conversation_id()
+        data["timestamp"] = message.get_timestamp()
 
         data["command"] = "Arbi-Agent"
 

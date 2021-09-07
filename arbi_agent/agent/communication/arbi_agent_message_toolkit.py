@@ -1,5 +1,5 @@
 import threading
-import concurrent.futures
+from multiprocessing.pool import ThreadPool
 from typing import Dict
 
 from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
@@ -18,7 +18,7 @@ class ArbiAgentMessageToolkit:
         if broker_type == 2:
             self.adaptor = ZeroMQAgentAdaptor(broker_url, agent_url, self.queue)
 
-        self.executer = concurrent.futures.ThreadPoolExecutor(max_workers=AgentConstants.TOOLKIT_THREAD_NUMBER)
+        self.executer = ThreadPool(processes=AgentConstants.TOOLKIT_THREAD_NUMBER)
 
         self.wating_response = []
 
@@ -50,25 +50,25 @@ class ArbiAgentMessageToolkit:
         action = message.get_action()
 
         if action == AgentMessageAction.Inform:
-            self.executer.submit(self.dispatch_data_task, message)
+            self.executer.apply_async(self.dispatch_data_task, (message, ))
         elif action == AgentMessageAction.Request:
-            self.executer.submit(self.dispatch_request_task, message)
+            self.executer.apply_async(self.dispatch_request_task, (message, ))
         elif action == AgentMessageAction.Query:
-            self.executer.submit(self.dispatch_query_task, message)
+            self.executer.apply_async(self.dispatch_query_task, (message, ))
         elif action == AgentMessageAction.Notify:
-            self.executer.submit(self.dispatch_notify_task, message)
+            self.executer.apply_async(self.dispatch_notify_task, (message, ))
         elif action == AgentMessageAction.Subscribe:
-            self.executer.submit(self.dispatch_subscribe_task, message)
+            self.executer.apply_async(self.dispatch_subscribe_task, (message, ))
         elif action == AgentMessageAction.Unsubscribe:
-            self.executer.submit(self.dispatch_unsubscribe_task, message)
+            self.executer.apply_async(self.dispatch_unsubscribe_task, (message, ))
         elif action == AgentMessageAction.System:
-            self.executer.submit(self.dispatch_system_task, message)
+            self.executer.apply_async(self.dispatch_system_task, (message, ))
         # elif action == AgentMessageAction.ACTION_REQUEST_STREAM:
-        #     self.executer.submit(self.dispatch_request_stream_task, message)
+        #     self.executer.apply_async(self.dispatch_request_stream_task, (message, ))
         # elif action == AgentMessageAction.ACTION_RELEASE_STREAM:
-        #     self.executer.submit(self.dispatch_release_stream_task, message)
+        #     self.executer.apply_async(self.dispatch_release_stream_task, (message, ))
         elif action == AgentMessageAction.Response:
-            self.executer.submit(self.dispatch_response, message)
+            self.executer.apply_async(self.dispatch_response, (message, ))
         else:
             print("message toolkit: dispatch: MESSAGE TYPE ERROR")
 
@@ -82,6 +82,7 @@ class ArbiAgentMessageToolkit:
         self.wating_response.remove(response_message)
 
     def dispatch_data_task(self, message):
+        print("here")
         thread_name = threading.current_thread().name
         self.received_message_map[thread_name] = message
 

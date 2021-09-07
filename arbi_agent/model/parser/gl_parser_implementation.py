@@ -1,13 +1,11 @@
 from antlr4 import InputStream, CommonTokenStream
-from .GeneralizedListLexer import GeneralizedListLexer
-from .GeneralizedListParser import GeneralizedListParser
-from .GeneralizedListVisitor import GeneralizedListVisitor
+from arbi_agent.model.parser.GeneralizedListLexer import GeneralizedListLexer
+from arbi_agent.model.parser.GeneralizedListParser import GeneralizedListParser
+from arbi_agent.model.parser.GeneralizedListVisitor import GeneralizedListVisitor
 
 from ..expression.expression_function import FunctionExpression
 from ..expression.expression_generalized_list import GLExpression
-from ..expression.expression_list import ExpressionList
 from ..expression.expression_value import ValueExpression
-from ..expression.expression_variable import VariableExpression
 
 from ..variable import Variable
 
@@ -50,6 +48,7 @@ class GeneralizedListBuilder(GeneralizedListVisitor):
             value = self.visit(ctx.val)
             return ValueExpression(value)
         elif ctx.var is not None:
+            from arbi_agent.model.expression.expression_variable import VariableExpression
             variable = self.visit(ctx.var)
             return VariableExpression(variable)
         elif ctx.func is not None:

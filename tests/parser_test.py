@@ -1,13 +1,10 @@
 from antlr4 import InputStream, CommonTokenStream
-from arbi_agent.model.parser.GeneralizedListLexer import GeneralizedListLexer
-from arbi_agent.model.parser.GeneralizedListParser import GeneralizedListParser
-from arbi_agent.model.parser.GeneralizedListVisitor import GeneralizedListVisitor
-
-from arbi_agent.model.generalized_list import GeneralizedList
+from arbi_agent.model.tmp.GeneralizedListLexer import GeneralizedListLexer
+from arbi_agent.model.tmp.GeneralizedListParser import GeneralizedListParser
+from arbi_agent.model.tmp.GeneralizedListVisitor import GeneralizedListVisitor
 
 from arbi_agent.model.expression.expression_function import FunctionExpression
 from arbi_agent.model.expression.expression_generalized_list import GLExpression
-from arbi_agent.model.expression.expression_list import ExpressionList
 from arbi_agent.model.expression.expression_value import ValueExpression
 from arbi_agent.model.expression.expression_variable import VariableExpression
 

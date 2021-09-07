@@ -5,15 +5,16 @@ from arbi_agent.model import generalized_list_factory
 
 
 class MyDataSource(DataSource):
+    def __init__(self):
+        self.connect("tcp://127.0.0.1:61616", "ds://test_ds", 2)
+        self.subscribe("(rule (fact (test $x)) --> (notify (test $x)))")
+        self.assert_fact("(test 1)")
+        gl = self.retrieve_fact("(test $x)")
+        print(gl)
+
     def on_notify(self, content):
-        print("on notify :", content)
-        gl = generalized_list_factory.new_gl_from_gl_string(content)
-        val = gl.get_expression(1).as_value().float_value()
-        print(val)
-        val = gl.get_expression(3)
-        print(val)
-        val = val.as_value().boolean_value()
-        print(val)
+        gl = self.retrieve_fact("(test $x)")
+        print(gl)
 
 
 class TestAgent(ArbiAgent):
@@ -25,14 +26,9 @@ class TestAgent(ArbiAgent):
 
     def on_start(self):
         dc = MyDataSource()
-        dc.connect("tcp://127.0.0.1:61616", "ds://test_ds", 2)
 
-        subscribe_rule = "(rule (fact (RobotInfo $robot_id $x $y $loading $speed $batterty)) --> " \
-                         "(notify (RobotInfo $robot_id $x $y $loading $speed $batterty)))"
-
-        dc.subscribe(subscribe_rule)
-
-        dc.assert_fact("(RobotInfo \"ID01\" 1.1 40 \"False\" 3.4 \"stable\")")
+        subscribe_rule = "(rule (fact (RobotInfo $robot_id)) --> " \
+                         "(notify (RobotInfo $robot_id)))"
 
         input()
 
@@ -41,6 +37,6 @@ class TestAgent(ArbiAgent):
 
 if __name__ == "__main__":
     agent = TestAgent()
-    arbi_agent_excutor.excute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
+    arbi_agent_excutor.execute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
                               agent=agent, broker_type=2)
     agent.close()

@@ -35,6 +35,8 @@ class AgentMessageAction(Enum):
     Notify = 9
     System = 10
 
+class LTMConstants:
+    TOOLKIT_THREAD_NUMBER = 5
 
 class LTMMessageAction(Enum):
     RequestStream = 0
@@ -49,6 +51,7 @@ class LTMMessageAction(Enum):
     Subscribe = 9
     Unsubscribe = 10
     Notify = 11
+    GetLastModifiedTime = 12
 
 
 class GLValueType:

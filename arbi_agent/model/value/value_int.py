@@ -4,7 +4,6 @@ from arbi_agent.model import generalized_list_factory as GeneralizedListFactory
 
 
 class IntValue(Value):
-
     def __init__(self, value):
         self.value = value
 

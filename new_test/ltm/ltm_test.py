@@ -73,6 +73,6 @@ class TestAgent(ArbiAgent):
 
 if __name__ == "__main__":
     agent = TestAgent()
-    arbi_agent_excutor.excute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
+    arbi_agent_excutor.execute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
                               agent=agent, broker_type=2)
     agent.close()

@@ -25,6 +25,8 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
         self.is_alive = True
 
+        self.lock = threading.Lock()
+
         self.message_received_thread = threading.Thread(target=self.message_received, args=())
         self.message_received_thread.daemon = True
         self.message_received_thread.start()
@@ -46,13 +48,11 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
             self.consumer.recv_string()
             message = self.consumer.recv_string()
 
-            print("receive message in agent")
-            print("\tmessage\t\t:", message)
-
             data = json.loads(message)
 
             if data["command"] != "Arbi-Agent":
                 return
+            # print(message)
 
             sender = data["sender"]
             receiver = data["receiver"]
@@ -78,10 +78,11 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
         data["command"] = "Arbi-Agent"
 
-        json_message = json.dumps(data)
+        self.lock.acquire()
 
-        print("send message in agent")
-        print("\tmessage\t\t:", json_message)
+        json_message = json.dumps(data)
 
         self.producer.send_multipart([bytes("", encoding="utf-8"),
                                       bytes(str(json_message), encoding="utf-8")])
+
+        self.lock.release()

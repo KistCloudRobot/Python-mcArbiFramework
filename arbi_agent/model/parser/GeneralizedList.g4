@@ -4,17 +4,17 @@ options {
     language = Python3;
 }
 
-generalized_list : '(' id = IDENTIFIER exp_list = expression_list ')' ;
+generalized_list : '(' identifier = IDENTIFIER exp_list = expression_list ')' ;
 
 expression_list : (exp = expression)* ;
 
 expression : val = value | var = variable | func = function | gl = generalized_list;
 
-value : id = (INTEGER | FLOAT | STRING | SPECIAL_KEYWORD);
+value : identifier = (INTEGER | FLOAT | STRING | SPECIAL_KEYWORD);
 
-variable : id =  VARIABLE;
+variable : identifier =  VARIABLE;
 
-function : '#(' id = IDENTIFIER exp_list = expression_list ')' ;
+function : '#(' identifier = IDENTIFIER exp_list = expression_list ')' ;
 
 WS : [ \t\n\r\f]+ -> skip ;
 

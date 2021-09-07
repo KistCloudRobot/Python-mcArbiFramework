@@ -24,6 +24,8 @@ class ZeroMQLTMAdaptor(LTMMessageAdaptor):
 
         self.is_alive = True
 
+        self.lock = threading.Lock()
+
         self.message_received_thread = threading.Thread(target=self.message_received, args=())
         self.message_received_thread.daemon = True
         self.message_received_thread.start()
@@ -42,21 +44,30 @@ class ZeroMQLTMAdaptor(LTMMessageAdaptor):
 
     def message_received(self):
         while self.is_alive:
-            self.consumer.recv()
-            message = self.consumer.recv()
-            
-            data = json.loads(str(message, encoding="utf-8"))
+            try:
+                self.consumer.recv()
+                message = self.consumer.recv()
 
-            if data["command"] != "Long-Term-Memory":
-                return
+                data = json.loads(str(message, encoding="utf-8"))
 
-            client = data["client"]
-            action = LTMMessageAction[data["action"]]
-            content = data["content"]
-            conversation_id = data["conversationID"]
+                if data["command"] != "Long-Term-Memory":
+                    return
 
-            agent_message = LTMMessage(client=client, action=action, content=content, conversation_id=conversation_id)
-            self.queue.enqueue(agent_message)
+                client = data["client"]
+                action = LTMMessageAction[data["action"]]
+                content = data["content"]
+                conversation_id = data["conversationID"]
+
+                agent_message = LTMMessage(client=client, action=action, content=content, conversation_id=conversation_id)
+                self.queue.enqueue(agent_message)
+
+            except AssertionError as e:
+                print("what?")
+                continue
+
+            except Exception as e:
+                print('whaaat?')
+                continue
 
     def send(self, message):
         data = dict()
@@ -68,6 +79,10 @@ class ZeroMQLTMAdaptor(LTMMessageAdaptor):
 
         data["command"] = "Long-Term-Memory"
 
+        self.lock.acquire()
+
         json_message = json.dumps(data)
 
         self.producer.send_multipart([bytes("", encoding="utf-8"), bytes(str(json_message), encoding="utf-8")])
+
+        self.lock.release()

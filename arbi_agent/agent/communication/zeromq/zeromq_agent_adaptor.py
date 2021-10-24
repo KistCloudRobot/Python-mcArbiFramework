@@ -54,7 +54,6 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
                 while True:
                     time.sleep(0.1)
                     message = self.consumer.recv_string()
-                    print("rcvd : " + message)
                     try:
                         data = json.loads(message)
                         break
@@ -92,18 +91,12 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
         data["command"] = "Arbi-Agent"
 
-        print('before send')
-
         self.lock.acquire()
 
         json_message = json.dumps(data)
-
-        print("send :", json_message)
 
         self.producer.send_multipart([bytes("", encoding="utf-8"),
                                       bytes(str(json_message), encoding="utf-8")])
 
         self.lock.release()
-
-        print("after send")
 

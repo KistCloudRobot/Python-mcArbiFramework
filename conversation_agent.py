@@ -61,11 +61,11 @@ if __name__ == "__main__":
     print("agent ready")
 
     ds = ConversationDataSource()
-    ds.connect("tcp://172.16.165.124:61616", "ds://conversation_ds", BrokerType.TYPE_ZERO)
+    ds.connect("tcp://172.16.165.204:61313", "ds://conversation_ds", BrokerType.TYPE_ZERO)
 
     agent = ConversationAgent(ds)
     agent.initialize(agent_url="agent://conversation_agent", 
-                     broker_url="tcp://172.16.165.124:61616", 
+                     broker_url="tcp://172.16.165.204:61313",
                      broker_type=BrokerType.TYPE_ZERO)
     sleep(1)
 

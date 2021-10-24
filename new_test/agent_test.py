@@ -1,5 +1,5 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
-from arbi_agent.agent import arbi_agent_excutor
+from arbi_agent.agent import arbi_agent_executor
 from time import sleep
 
 
@@ -20,22 +20,22 @@ class TestAgent(ArbiAgent):
 
 
 if __name__ == '__main__':
-    broker_url = "tcp://127.0.0.1:61616"
+    broker_url = "tcp://172.16.165.204:61313"
 
     sender_agent = TestAgent()
-    sender_agent_name = "agent://www.arbi.com/SenderAgent"
-    arbi_agent_excutor.excute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=2)
+    sender_agent_name = "agent://www.arbi.com/Local/SenderAgent"
+    arbi_agent_executor.execute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=2)
     print("sender agent ready")
 
     receiver_agent = TestAgent()
-    receiver_agent_name = "agent://www.arbi.com/ReceiverAgent"
-    arbi_agent_excutor.excute(broker_url, agent_name=receiver_agent_name, agent=receiver_agent, broker_type=2)
+    receiver_agent_name = "agent://www.arbi.com/Local/ReceiverAgent"
+    arbi_agent_executor.execute(broker_url, agent_name=receiver_agent_name, agent=receiver_agent, broker_type=2)
     print("receiver agent ready")
 
     print("test start!")
 
-    input()
     # agent1 send test message to agent2
+    input()
     print(sender_agent_name + " -> send test")
     sender_agent.send(receiver_agent_name, "(test send)")
 

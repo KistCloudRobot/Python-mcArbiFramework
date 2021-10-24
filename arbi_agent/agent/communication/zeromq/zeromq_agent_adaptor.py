@@ -1,3 +1,5 @@
+import time
+
 import zmq
 import threading
 import json
@@ -22,6 +24,8 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
         self.consumer = self.context.socket(zmq.DEALER)
         self.consumer.setsockopt(zmq.IDENTITY, bytes(self.url + "/message", encoding="utf-8"))
         self.consumer.connect(broker_url)
+        self.poller = zmq.Poller()
+        self.poller.register(self.consumer, zmq.POLLIN)
 
         self.is_alive = True
 
@@ -45,26 +49,36 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
     def message_received(self):
         while self.is_alive:
-            self.consumer.recv_string()
-            message = self.consumer.recv_string()
+            sockets = dict(self.poller.poll(2000))
+            if sockets:
+                while True:
+                    time.sleep(0.1)
+                    message = self.consumer.recv_string()
+                    print("rcvd : " + message)
+                    try:
+                        data = json.loads(message)
+                        break
+                    except:
+                        continue
 
-            data = json.loads(message)
+                if data["command"] != "Arbi-Agent":
+                    print("WTF : " + str(data))
+                    continue
 
-            if data["command"] != "Arbi-Agent":
-                return
-            # print(message)
+                sender = data["sender"]
+                receiver = data["receiver"]
+                action = AgentMessageAction[data["action"]]
+                content = data["content"]
+                conversation_id = data["conversationID"]
+                timestamp = data["timestamp"]
 
-            sender = data["sender"]
-            receiver = data["receiver"]
-            action = AgentMessageAction[data["action"]]
-            content = data["content"]
-            conversation_id = data["conversationID"]
-            timestamp = data["timestamp"]
-
-            agent_message = ArbiAgentMessage(sender=sender, receiver=receiver, action=action,
-                                             content=content, conversation_id=conversation_id,
-                                             timestamp=timestamp)
-            self.queue.enqueue(agent_message)
+                agent_message = ArbiAgentMessage(sender=sender, receiver=receiver, action=action,
+                                                 content=content, conversation_id=conversation_id,
+                                                 timestamp=timestamp)
+                self.queue.enqueue(agent_message)
+            else:
+                # print("what?")
+                pass
 
     def send(self, message: ArbiAgentMessage):
         data = dict()
@@ -78,11 +92,18 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
         data["command"] = "Arbi-Agent"
 
+        print('before send')
+
         self.lock.acquire()
 
         json_message = json.dumps(data)
+
+        print("send :", json_message)
 
         self.producer.send_multipart([bytes("", encoding="utf-8"),
                                       bytes(str(json_message), encoding="utf-8")])
 
         self.lock.release()
+
+        print("after send")
+

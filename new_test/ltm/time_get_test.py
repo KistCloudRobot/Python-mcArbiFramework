@@ -1,13 +1,13 @@
 from time import sleep
 
 from arbi_agent.agent.arbi_agent import ArbiAgent
-from arbi_agent.agent import arbi_agent_excutor
+from arbi_agent.agent import arbi_agent_executor
 from arbi_agent.ltm.data_source import DataSource
 
 
 class TimeGetTest(ArbiAgent):
     def __init__(self):
-        arbi_agent_excutor.execute("tcp://127.0.0.1:61616", "agent://www.arbi.com/TestAgent", self, 2)
+        arbi_agent_executor.execute("tcp://127.0.0.1:61616", "agent://www.arbi.com/TestAgent", self, 2)
 
     def on_start(self):
         print("start")

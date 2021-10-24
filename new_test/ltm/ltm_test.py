@@ -1,6 +1,6 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
 from arbi_agent.ltm.data_source import DataSource
-from arbi_agent.agent import arbi_agent_excutor
+from arbi_agent.agent import arbi_agent_executor
 from arbi_agent.model import generalized_list_factory as GLFactory
 
 
@@ -73,6 +73,6 @@ class TestAgent(ArbiAgent):
 
 if __name__ == "__main__":
     agent = TestAgent()
-    arbi_agent_excutor.execute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
-                              agent=agent, broker_type=2)
+    arbi_agent_executor.execute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
+                                agent=agent, broker_type=2)
     agent.close()

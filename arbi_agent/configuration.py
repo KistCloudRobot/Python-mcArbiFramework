@@ -19,7 +19,7 @@ class LoggerContents:
 
 
 class AgentConstants:
-    TOOLKIT_THREAD_NUMBER = 5
+    TOOLKIT_THREAD_NUMBER = 20
 
 
 class AgentMessageAction(Enum):
@@ -36,7 +36,7 @@ class AgentMessageAction(Enum):
     System = 10
 
 class LTMConstants:
-    TOOLKIT_THREAD_NUMBER = 5
+    TOOLKIT_THREAD_NUMBER = 20
 
 class LTMMessageAction(Enum):
     RequestStream = 0

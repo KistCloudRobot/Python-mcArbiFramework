@@ -82,7 +82,6 @@ class ArbiAgentMessageToolkit:
         self.wating_response.remove(response_message)
 
     def dispatch_data_task(self, message):
-        print("here")
         thread_name = threading.current_thread().name
         self.received_message_map[thread_name] = message
 
@@ -112,7 +111,9 @@ class ArbiAgentMessageToolkit:
         response = self.on_query(sender, query)
         if response is None:
             response = "ok"
+
         self.send_response_message(request_id, sender, response)
+
 
         self.received_message_map.pop(thread_name)
 
@@ -156,7 +157,7 @@ class ArbiAgentMessageToolkit:
         request = message.get_content()
         response = self.on_subscribe(sender, request)
         if response is None:
-            response = "ok"
+            response = "(ok)"
         self.send_response_message(request_id, sender, response)
 
         self.received_message_map.pop(thread_name)
@@ -196,7 +197,8 @@ class ArbiAgentMessageToolkit:
         message = self.create_message(receiver, AgentMessageAction.Query, content)
         self.wating_response.append(message)
         self.adaptor.send(message)
-        return message.get_response()
+        response = message.get_response()
+        return response
 
     def send(self, receiver, content):
         message = self.create_message(receiver, AgentMessageAction.Inform, content)

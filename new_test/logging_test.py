@@ -1,5 +1,5 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
-from arbi_agent.agent import arbi_agent_excutor
+from arbi_agent.agent import arbi_agent_executor
 from arbi_agent.agent.logger.agent_action import AgentAction
 from arbi_agent.agent.logger.action_body import ActionBody
 from arbi_agent.agent.logger.logger_manager import LoggerManager
@@ -23,8 +23,8 @@ class TestArgument:
 class TestAgent(ArbiAgent):
     def __init__(self):
         super().__init__()
-        arbi_agent_excutor.excute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/TestAgent",
-                                  agent=self, broker_type=2)
+        arbi_agent_executor.excute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/TestAgent",
+                                   agent=self, broker_type=2)
 
     def on_start(self):
         test_action = AgentAction('test action', TestAction())

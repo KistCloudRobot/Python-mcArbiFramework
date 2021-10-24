@@ -1,6 +1,6 @@
 from time import sleep
 
-from arbi_agent.agent import arbi_agent_excutor
+from arbi_agent.agent import arbi_agent_executor
 from new_test.agent_test import TestAgent
 
 
@@ -10,7 +10,7 @@ if __name__ == '__main__':
     sender_agent = TestAgent()
     sender_agent_name = "agent://www.arbi.com/SenderAgent"
     receiver_agent_name = "agent://www.arbi.com/ReceiverAgent"
-    arbi_agent_excutor.excute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=2)
+    arbi_agent_executor.excute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=2)
     print("sender agent ready")
 
     print("test start!")

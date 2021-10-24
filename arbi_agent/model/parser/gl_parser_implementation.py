@@ -3,17 +3,13 @@ from arbi_agent.model.parser.GeneralizedListLexer import GeneralizedListLexer
 from arbi_agent.model.parser.GeneralizedListParser import GeneralizedListParser
 from arbi_agent.model.parser.GeneralizedListVisitor import GeneralizedListVisitor
 
-from ..expression.expression_function import FunctionExpression
-from ..expression.expression_generalized_list import GLExpression
-from ..expression.expression_value import ValueExpression
+from arbi_agent.model.expression.expression_function import FunctionExpression
+from arbi_agent.model.expression.expression_generalized_list import GLExpression
+from arbi_agent.model.expression.expression_value import ValueExpression
 
-from ..variable import Variable
+from arbi_agent.model.variable import Variable
 
-from ...model import generalized_list_factory as GLFactory
-
-
-# import .model.generalized_list_factory as GLFactory
-
+from arbi_agent.model import generalized_list_factory as GLFactory
 
 def parse_generalized_list(gl):
     stream = InputStream(gl)

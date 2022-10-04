@@ -1,4 +1,4 @@
-# Generated from /home/uosai/project/Python-mcArbiFramework/arbi_agent/model/parser/GeneralizedList.g4 by ANTLR 4.10.1
+# Generated from C:/Users/1208d/Documents/project/Python-mcArbiFramework/arbi_agent/model/parser\GeneralizedList.g4 by ANTLR 4.9.1
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -8,21 +8,25 @@ if sys.version_info[1] > 5:
 else:
 	from typing.io import TextIO
 
+
 def serializedATN():
-    return [
-        4,1,10,39,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,1,
-        0,1,0,1,0,1,0,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,2,1,2,1,2,1,2,3,
-        2,28,8,2,1,3,1,3,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,0,0,6,0,2,4,6,8,
-        10,0,1,2,0,5,6,9,10,36,0,12,1,0,0,0,2,20,1,0,0,0,4,27,1,0,0,0,6,
-        29,1,0,0,0,8,31,1,0,0,0,10,33,1,0,0,0,12,13,5,1,0,0,13,14,5,7,0,
-        0,14,15,3,2,1,0,15,16,5,2,0,0,16,1,1,0,0,0,17,19,3,4,2,0,18,17,1,
-        0,0,0,19,22,1,0,0,0,20,18,1,0,0,0,20,21,1,0,0,0,21,3,1,0,0,0,22,
-        20,1,0,0,0,23,28,3,6,3,0,24,28,3,8,4,0,25,28,3,10,5,0,26,28,3,0,
-        0,0,27,23,1,0,0,0,27,24,1,0,0,0,27,25,1,0,0,0,27,26,1,0,0,0,28,5,
-        1,0,0,0,29,30,7,0,0,0,30,7,1,0,0,0,31,32,5,8,0,0,32,9,1,0,0,0,33,
-        34,5,3,0,0,34,35,5,7,0,0,35,36,3,2,1,0,36,37,5,2,0,0,37,11,1,0,0,
-        0,2,20,27
-    ]
+    with StringIO() as buf:
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\f")
+        buf.write(")\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3\2")
+        buf.write("\3\2\3\2\3\2\3\2\3\3\7\3\25\n\3\f\3\16\3\30\13\3\3\4\3")
+        buf.write("\4\3\4\3\4\5\4\36\n\4\3\5\3\5\3\6\3\6\3\7\3\7\3\7\3\7")
+        buf.write("\3\7\3\7\2\2\b\2\4\6\b\n\f\2\3\4\2\7\b\13\f\2&\2\16\3")
+        buf.write("\2\2\2\4\26\3\2\2\2\6\35\3\2\2\2\b\37\3\2\2\2\n!\3\2\2")
+        buf.write("\2\f#\3\2\2\2\16\17\7\3\2\2\17\20\7\t\2\2\20\21\5\4\3")
+        buf.write("\2\21\22\7\4\2\2\22\3\3\2\2\2\23\25\5\6\4\2\24\23\3\2")
+        buf.write("\2\2\25\30\3\2\2\2\26\24\3\2\2\2\26\27\3\2\2\2\27\5\3")
+        buf.write("\2\2\2\30\26\3\2\2\2\31\36\5\b\5\2\32\36\5\n\6\2\33\36")
+        buf.write("\5\f\7\2\34\36\5\2\2\2\35\31\3\2\2\2\35\32\3\2\2\2\35")
+        buf.write("\33\3\2\2\2\35\34\3\2\2\2\36\7\3\2\2\2\37 \t\2\2\2 \t")
+        buf.write("\3\2\2\2!\"\7\n\2\2\"\13\3\2\2\2#$\7\5\2\2$%\7\t\2\2%")
+        buf.write("&\5\4\3\2&\'\7\4\2\2\'\r\3\2\2\2\4\26\35")
+        return buf.getvalue()
+
 
 class GeneralizedListParser ( Parser ):
 
@@ -64,7 +68,7 @@ class GeneralizedListParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.10.1")
+        self.checkVersion("4.9.1")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 

@@ -1,7 +1,7 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
 from arbi_agent.agent import arbi_agent_executor
+from arbi_agent.configuration import BrokerType
 from time import sleep
-
 
 class TestAgent(ArbiAgent):
     def __init__(self):
@@ -20,16 +20,16 @@ class TestAgent(ArbiAgent):
 
 
 if __name__ == '__main__':
-    broker_url = "tcp://172.16.165.204:61313"
+    broker_url = "tcp://127.0.0.1:61116"
 
     sender_agent = TestAgent()
     sender_agent_name = "agent://www.arbi.com/Local/SenderAgent"
-    arbi_agent_executor.execute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=2)
+    arbi_agent_executor.execute(broker_url, agent_name=sender_agent_name, agent=sender_agent, broker_type=BrokerType.ZERO_MQ)
     print("sender agent ready")
 
     receiver_agent = TestAgent()
     receiver_agent_name = "agent://www.arbi.com/Local/ReceiverAgent"
-    arbi_agent_executor.execute(broker_url, agent_name=receiver_agent_name, agent=receiver_agent, broker_type=2)
+    arbi_agent_executor.execute(broker_url, agent_name=receiver_agent_name, agent=receiver_agent, broker_type=BrokerType.ZERO_MQ)
     print("receiver agent ready")
 
     print("test start!")

@@ -5,15 +5,16 @@ from arbi_agent.configuration import LTMMessageAction, LTMConstants
 from arbi_agent.ltm.ltm_message import LTMMessage
 from arbi_agent.ltm.communication.zeromq.zeromq_ltm_adaptor import ZeroMQLTMAdaptor
 from arbi_agent.ltm.communication.ltm_message_queue import LTMMessageQueue
+from arbi_agent.configuration import BrokerType
 
 
 class DataSourceInterfaceToolkit:
 
-    def __init__(self, broker_url, data_source_url, data_source, broker_type: int):
+    def __init__(self, broker_url, data_source_url, data_source, broker_type: BrokerType):
         self.data_source = data_source
         self.queue = LTMMessageQueue()
 
-        if broker_type == 2:
+        if broker_type == BrokerType.ZERO_MQ:
             self.adaptor = ZeroMQLTMAdaptor(broker_url, data_source_url, self.queue)
 
         self.waiting_result = list()

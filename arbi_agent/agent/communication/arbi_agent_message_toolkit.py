@@ -5,18 +5,18 @@ from typing import Dict
 from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
 from arbi_agent.agent.communication.arbi_message_queue import ArbiMessageQueue
 from arbi_agent.agent.communication.zeromq.zeromq_agent_adaptor import ZeroMQAgentAdaptor
-from arbi_agent.configuration import AgentMessageAction, AgentConstants
+from arbi_agent.configuration import AgentMessageAction, AgentConstants, BrokerType
 
 
 class ArbiAgentMessageToolkit:
-    def __init__(self, broker_url: str, agent_url: str, agent, broker_type: int):
+    def __init__(self, broker_url: str, agent_url: str, agent, broker_type: BrokerType, daemon=True):
         self.agent_url = agent_url
         self.queue = ArbiMessageQueue()
 
         self.adaptor = None
 
-        if broker_type == 2:
-            self.adaptor = ZeroMQAgentAdaptor(broker_url, agent_url, self.queue)
+        if broker_type == BrokerType.ZERO_MQ:
+            self.adaptor = ZeroMQAgentAdaptor(broker_url, agent_url, self.queue, daemon)
 
         self.executer = ThreadPool(processes=AgentConstants.TOOLKIT_THREAD_NUMBER)
 
@@ -25,7 +25,7 @@ class ArbiAgentMessageToolkit:
         self.agent = agent
 
         self.toolkit_thread = threading.Thread(target=self.run, args=())
-        self.toolkit_thread.daemon = True
+        self.toolkit_thread.daemon = daemon
         self.toolkit_thread.start()
 
         self.received_message_map: Dict[str, ArbiAgentMessage] = dict()

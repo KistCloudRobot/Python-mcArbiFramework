@@ -1,5 +1,6 @@
 from arbi_agent.agent.arbi_agent import ArbiAgent
 from arbi_agent.ltm.data_source import DataSource
+from arbi_agent.configuration import BrokerType
 from arbi_agent.agent import arbi_agent_executor
 from arbi_agent.model import generalized_list_factory as GLFactory
 
@@ -21,7 +22,7 @@ class TestAgent(ArbiAgent):
 
     def on_start(self):
         dc = MyDataSource()
-        dc.connect("tcp://127.0.0.1:61616", "ds://test_ds", 2)
+        dc.connect("tcp://127.0.0.1:61116", "ds://test_ds", BrokerType.ZERO_MQ)
 
         input()
         print("assert fact (test \"test1\")")
@@ -73,6 +74,6 @@ class TestAgent(ArbiAgent):
 
 if __name__ == "__main__":
     agent = TestAgent()
-    arbi_agent_executor.execute(broker_url="tcp://127.0.0.1:61616", agent_name="agent://www.arbi.com/LTMTestAgent",
-                                agent=agent, broker_type=2)
+    arbi_agent_executor.execute(broker_url="tcp://127.0.0.1:61116", agent_name="agent://www.arbi.com/LTMTestAgent",
+                                agent=agent, broker_type=BrokerType.ZERO_MQ)
     agent.close()

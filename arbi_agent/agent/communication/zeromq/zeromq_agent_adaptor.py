@@ -11,7 +11,7 @@ from arbi_agent.configuration import AgentMessageAction
 
 
 class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
-    def __init__(self, broker_url: str, adaptor_url: str, queue: ArbiMessageQueue):
+    def __init__(self, broker_url: str, adaptor_url: str, queue: ArbiMessageQueue, daemon=True):
         self.url = adaptor_url
         self.queue = queue
 
@@ -32,7 +32,7 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
         self.lock = threading.Lock()
 
         self.message_received_thread = threading.Thread(target=self.message_received, args=())
-        self.message_received_thread.daemon = True
+        self.message_received_thread.daemon = daemon
         self.message_received_thread.start()
 
     def close(self):

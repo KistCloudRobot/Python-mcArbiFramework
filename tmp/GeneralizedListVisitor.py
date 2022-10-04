@@ -1,4 +1,4 @@
-# Generated from /home/uosai/project/Python-mcArbiFramework/arbi_agent/model/parser/GeneralizedList.g4 by ANTLR 4.10.1
+# Generated from C:/Users/1208d/Documents/project/Python-mcArbiFramework/arbi_agent/model/parser\GeneralizedList.g4 by ANTLR 4.9.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .GeneralizedListParser import GeneralizedListParser

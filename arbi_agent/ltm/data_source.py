@@ -8,7 +8,7 @@ class DataSource:
         self.running = False
         self.data_source_interface_toolkit = None
 
-    def connect(self, broker_url: str, data_source_url: str, broker_type: int):
+    def connect(self, broker_url: str, data_source_url: str, broker_type: BrokerType):
         self.data_source_url = data_source_url
         self.running = True
         self.data_source_interface_toolkit = DataSourceInterfaceToolkit(broker_url, data_source_url, self, broker_type)

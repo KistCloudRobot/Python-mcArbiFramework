@@ -2,6 +2,7 @@ import json
 
 from arbi_agent.agent.logger.agent_action import AgentAction
 from arbi_agent.agent.logger.log_timing import LogTiming
+from arbi_agent.configuration import BrokerType
 
 
 class LoggerManager:
@@ -18,7 +19,7 @@ class LoggerManager:
         self.actor = None
         self.action_map = dict()
 
-    def init_logger_manager(self, broker_url: str, agent_uri: str, broker_type: int, agent):
+    def init_logger_manager(self, broker_url: str, agent_uri: str, broker_type: BrokerType, agent):
         self.agent = agent
         self.actor = agent_uri
 

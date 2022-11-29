@@ -3,27 +3,35 @@ import threading
 
 from arbi_agent.configuration import LTMMessageAction, LTMConstants
 from arbi_agent.ltm.ltm_message import LTMMessage
-from arbi_agent.ltm.communication.zeromq.zeromq_ltm_adaptor import ZeroMQLTMAdaptor
+from arbi_agent.ltm.communication.adaptor.zeromq_ltm_adaptor import ZeroMQLTMAdaptor
+from arbi_agent.ltm.communication.adaptor.activemq_ltm_adaptor import ActiveMQLTMAdaptor
 from arbi_agent.ltm.communication.ltm_message_queue import LTMMessageQueue
 from arbi_agent.configuration import BrokerType
 
 
 class DataSourceInterfaceToolkit:
 
-    def __init__(self, broker_url, data_source_url, data_source, broker_type: BrokerType):
+    def __init__(self, broker_host, broker_port, data_source_uri, data_source, broker_type: BrokerType):
         self.data_source = data_source
         self.queue = LTMMessageQueue()
 
         if broker_type == BrokerType.ZERO_MQ:
-            self.adaptor = ZeroMQLTMAdaptor(broker_url, data_source_url, self.queue)
+            self.adaptor = ZeroMQLTMAdaptor(broker_host, broker_port, data_source_uri, self.queue)
+        elif broker_type == BrokerType.ACTIVE_MQ:
+            self.adaptor = ActiveMQLTMAdaptor(broker_host, broker_port, data_source_uri, self.queue)
+        else:
+            raise Exception("undefined broker type : " + str(broker_type))
 
         self.waiting_result = list()
 
-        self.executer = ThreadPool(processes=LTMConstants.TOOLKIT_THREAD_NUMBER)
+        self.executor = ThreadPool(processes=LTMConstants.TOOLKIT_THREAD_NUMBER)
 
         self.toolkit_thread = threading.Thread(target=self.run, args=())
         self.toolkit_thread.daemon = True
+
+    def start(self):
         self.toolkit_thread.start()
+        self.adaptor.start()
 
     def run(self):
         while self.data_source.is_running():
@@ -37,7 +45,7 @@ class DataSourceInterfaceToolkit:
     def dispatch(self, message: LTMMessage):
         action = message.get_action()
         if action == LTMMessageAction.Notify:
-            self.executer.apply_async(self.dispatch_on_notify, (message, ))
+            self.executor.apply_async(self.dispatch_on_notify, (message, ))
         else:
             self.dispatch_response(message)
 

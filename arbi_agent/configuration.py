@@ -3,7 +3,11 @@ from enum import Enum
 
 class BrokerType(Enum):
     ZERO_MQ = 0
-    MC = 1
+    ACTIVE_MQ = 1
+
+
+class ServerContents:
+    SERVER_URI = "arbi.server"
 
 
 class ServerLauncherConstants:
@@ -35,8 +39,10 @@ class AgentMessageAction(Enum):
     Notify = 9
     System = 10
 
+
 class LTMConstants:
     TOOLKIT_THREAD_NUMBER = 20
+
 
 class LTMMessageAction(Enum):
     RequestStream = 0

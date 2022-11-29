@@ -4,26 +4,22 @@ import zmq
 import threading
 import json
 
-from arbi_agent.agent.communication.arbi_message_adaptor import ArbiMessageAdaptor
+from arbi_agent.agent.communication.adaptor.arbi_message_adaptor import ArbiMessageAdaptor
 from arbi_agent.agent.communication.arbi_message_queue import ArbiMessageQueue
 from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
 from arbi_agent.configuration import AgentMessageAction
 
 
 class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
-    def __init__(self, broker_url: str, adaptor_url: str, queue: ArbiMessageQueue, daemon=True):
-        self.url = adaptor_url
+    def __init__(self, broker_host: str, broker_port: int, agent_uri: str, queue: ArbiMessageQueue, daemon=True):
+        self.agent_uri = agent_uri
+        self.broker_url = "tcp://" + str(broker_host) + ":" + str(broker_port)
         self.queue = queue
 
         self.context = zmq.Context.instance()
 
         self.producer = self.context.socket(zmq.DEALER)
-        self.producer.setsockopt(zmq.IDENTITY, bytes(self.url, encoding="utf-8"))
-        self.producer.connect(broker_url)
-
         self.consumer = self.context.socket(zmq.DEALER)
-        self.consumer.setsockopt(zmq.IDENTITY, bytes(self.url + "/message", encoding="utf-8"))
-        self.consumer.connect(broker_url)
         self.poller = zmq.Poller()
         self.poller.register(self.consumer, zmq.POLLIN)
 
@@ -33,6 +29,13 @@ class ZeroMQAgentAdaptor(ArbiMessageAdaptor):
 
         self.message_received_thread = threading.Thread(target=self.message_received, args=())
         self.message_received_thread.daemon = daemon
+
+    def start(self):
+        self.producer.setsockopt(zmq.IDENTITY, bytes(self.agent_uri, encoding="utf-8"))
+        self.producer.connect(self.broker_url)
+        self.consumer.setsockopt(zmq.IDENTITY, bytes(self.agent_uri + "/message", encoding="utf-8"))
+        self.consumer.connect(self.broker_url)
+
         self.message_received_thread.start()
 
     def close(self):

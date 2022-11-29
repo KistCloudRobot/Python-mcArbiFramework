@@ -9,8 +9,9 @@ from arbi_agent.configuration import BrokerType
 
 class ArbiAgent(metaclass=ABCMeta):
     def __init__(self):
-        self.agent_url: Union[None, str] = None
-        self.broker_url: Union[None, str] = None
+        self.agent_uri: Union[None, str] = None
+        self.broker_host: Union[None, str] = None
+        self.broker_port: Union[None, int] = None
         self.broker_type: Union[None, BrokerType] = None
         self.running: bool = False
         self.message_toolkit: Union[None, ArbiAgentMessageToolkit] = None
@@ -18,28 +19,26 @@ class ArbiAgent(metaclass=ABCMeta):
     def initialize(self, **kwds):
         print("Arbi Agent Initialze")
 
-        self.agent_url = kwds["agent_url"]
+        self.agent_uri = kwds["agent_uri"]
+        self.broker_host = kwds["broker_host"]
+        self.broker_port = kwds["broker_port"]
         self.broker_type = kwds["broker_type"]
-
-        if "broker_url" in kwds:
-            self.broker_url = kwds["broker_url"]
-        else:
-            self.broker_url = "tcp://172.16.165.225:61616"
 
         if "daemon" in kwds:
             daemon = kwds["daemon"]
         else:
             daemon = True
 
-        print("Agent URL: " + self.agent_url)
-        print("Broker URL: " + self.broker_url)
-
         self.running = True
-        self.message_toolkit = ArbiAgentMessageToolkit(self.broker_url, self.agent_url, self, self.broker_type, daemon=daemon)
-        LoggerManager.get_instance().init_logger_manager(self.broker_url, self.agent_url, self.broker_type, self)
+        self.message_toolkit = ArbiAgentMessageToolkit(self.broker_host, self.broker_port, self.agent_uri, self, self.broker_type, daemon=daemon)
+        LoggerManager.get_instance().init_logger_manager(self.agent_uri, self)
 
-        print("Agent start! : " + self.agent_url)
+        print("agentURI :", self.agent_uri)
+        print("brokerType :", self.broker_type)
+        print("brokerHost :", self.broker_host)
+        print("brokerPort :", self.broker_port)
 
+        self.message_toolkit.start()
         self.on_start()
 
     def close(self):

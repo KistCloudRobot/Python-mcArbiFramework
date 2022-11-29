@@ -2,32 +2,33 @@ import zmq
 import threading
 import json
 
-from ...ltm_message import LTMMessage
-from ..ltm_message_adaptor import LTMMessageAdaptor
+from arbi_agent.ltm.communication.adaptor.ltm_message_adaptor import LTMMessageAdaptor
+from arbi_agent.ltm.ltm_message import LTMMessage
 from arbi_agent.configuration import LTMMessageAction
 
 
 class ZeroMQLTMAdaptor(LTMMessageAdaptor):
-    def __init__(self, broker_url, adaptor_url, queue):
-        self.url = adaptor_url
+    def __init__(self, broker_host, broker_port, ltm_uri, queue):
+        self.broker_url = "tcp://" + str(broker_host) + ":" + str(broker_port)
+        self.ltm_uri = ltm_uri
         self.queue = queue
 
         self.context = zmq.Context.instance()
-
         self.producer = self.context.socket(zmq.DEALER)
-        self.producer.setsockopt(zmq.IDENTITY, bytes(self.url, encoding="utf-8"))
-        self.producer.connect(broker_url)
-
         self.consumer = self.context.socket(zmq.DEALER)
-        self.consumer.setsockopt(zmq.IDENTITY, bytes(self.url + "/message", encoding="utf-8"))
-        self.consumer.connect(broker_url)
 
         self.is_alive = True
-
         self.lock = threading.Lock()
 
         self.message_received_thread = threading.Thread(target=self.message_received, args=())
         self.message_received_thread.daemon = True
+
+    def start(self):
+        self.producer.setsockopt(zmq.IDENTITY, bytes(self.ltm_uri, encoding="utf-8"))
+        self.producer.connect(self.broker_url)
+        self.consumer.setsockopt(zmq.IDENTITY, bytes(self.ltm_uri + "/message", encoding="utf-8"))
+        self.consumer.connect(self.broker_url)
+
         self.message_received_thread.start()
 
     def close(self):

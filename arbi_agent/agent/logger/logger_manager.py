@@ -19,7 +19,7 @@ class LoggerManager:
         self.actor = None
         self.action_map = dict()
 
-    def init_logger_manager(self, broker_url: str, agent_uri: str, broker_type: BrokerType, agent):
+    def init_logger_manager(self, agent_uri: str, agent):
         self.agent = agent
         self.actor = agent_uri
 

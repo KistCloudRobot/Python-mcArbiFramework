@@ -4,37 +4,45 @@ from typing import Dict
 
 from arbi_agent.agent.arbi_agent_message import ArbiAgentMessage
 from arbi_agent.agent.communication.arbi_message_queue import ArbiMessageQueue
-from arbi_agent.agent.communication.zeromq.zeromq_agent_adaptor import ZeroMQAgentAdaptor
+from arbi_agent.agent.communication.adaptor.zeromq_agent_adaptor import ZeroMQAgentAdaptor
+from arbi_agent.agent.communication.adaptor.activemq_agent_adaptor import ActiveMQAgentAdaptor
 from arbi_agent.configuration import AgentMessageAction, AgentConstants, BrokerType
 
 
 class ArbiAgentMessageToolkit:
-    def __init__(self, broker_url: str, agent_url: str, agent, broker_type: BrokerType, daemon=True):
-        self.agent_url = agent_url
+    def __init__(self, broker_host: str, broker_port: int, agent_uri: str, agent, broker_type: BrokerType, daemon=True):
+        self.agent_uri = agent_uri
         self.queue = ArbiMessageQueue()
 
         self.adaptor = None
 
         if broker_type == BrokerType.ZERO_MQ:
-            self.adaptor = ZeroMQAgentAdaptor(broker_url, agent_url, self.queue, daemon)
+            self.adaptor = ZeroMQAgentAdaptor(broker_host, broker_port, agent_uri, self.queue, daemon)
+        elif broker_type == BrokerType.ACTIVE_MQ:
+            self.adaptor = ActiveMQAgentAdaptor(broker_host, broker_port, agent_uri, self.queue, daemon)
+        else:
+            raise Exception("undefined broker type : " + str(broker_type))
 
-        self.executer = ThreadPool(processes=AgentConstants.TOOLKIT_THREAD_NUMBER)
+        self.executor = ThreadPool(processes=AgentConstants.TOOLKIT_THREAD_NUMBER)
 
-        self.wating_response = []
+        self.waiting_response = []
 
         self.agent = agent
 
         self.toolkit_thread = threading.Thread(target=self.run, args=())
         self.toolkit_thread.daemon = daemon
-        self.toolkit_thread.start()
 
         self.received_message_map: Dict[str, ArbiAgentMessage] = dict()
+
+    def start(self):
+        self.toolkit_thread.start()
+        self.adaptor.start()
 
     def close(self):
         self.adaptor.close()
 
     def create_message(self, receiver, action, content) -> ArbiAgentMessage:
-        return ArbiAgentMessage(sender=self.agent_url, receiver=receiver, action=action, content=content)
+        return ArbiAgentMessage(sender=self.agent_uri, receiver=receiver, action=action, content=content)
 
     def run(self):
         while self.agent.is_running():
@@ -50,36 +58,36 @@ class ArbiAgentMessageToolkit:
         action = message.get_action()
 
         if action == AgentMessageAction.Inform:
-            self.executer.apply_async(self.dispatch_data_task, (message, ))
+            self.executor.apply_async(self.dispatch_data_task, (message,))
         elif action == AgentMessageAction.Request:
-            self.executer.apply_async(self.dispatch_request_task, (message, ))
+            self.executor.apply_async(self.dispatch_request_task, (message,))
         elif action == AgentMessageAction.Query:
-            self.executer.apply_async(self.dispatch_query_task, (message, ))
+            self.executor.apply_async(self.dispatch_query_task, (message,))
         elif action == AgentMessageAction.Notify:
-            self.executer.apply_async(self.dispatch_notify_task, (message, ))
+            self.executor.apply_async(self.dispatch_notify_task, (message,))
         elif action == AgentMessageAction.Subscribe:
-            self.executer.apply_async(self.dispatch_subscribe_task, (message, ))
+            self.executor.apply_async(self.dispatch_subscribe_task, (message,))
         elif action == AgentMessageAction.Unsubscribe:
-            self.executer.apply_async(self.dispatch_unsubscribe_task, (message, ))
+            self.executor.apply_async(self.dispatch_unsubscribe_task, (message,))
         elif action == AgentMessageAction.System:
-            self.executer.apply_async(self.dispatch_system_task, (message, ))
+            self.executor.apply_async(self.dispatch_system_task, (message,))
         # elif action == AgentMessageAction.ACTION_REQUEST_STREAM:
-        #     self.executer.apply_async(self.dispatch_request_stream_task, (message, ))
+        #     self.executor.apply_async(self.dispatch_request_stream_task, (message, ))
         # elif action == AgentMessageAction.ACTION_RELEASE_STREAM:
-        #     self.executer.apply_async(self.dispatch_release_stream_task, (message, ))
+        #     self.executor.apply_async(self.dispatch_release_stream_task, (message, ))
         elif action == AgentMessageAction.Response:
-            self.executer.apply_async(self.dispatch_response, (message, ))
+            self.executor.apply_async(self.dispatch_response, (message,))
         else:
             print("message toolkit: dispatch: MESSAGE TYPE ERROR")
 
     def dispatch_response(self, message: ArbiAgentMessage):
         response_message = None
-        for waiting_message in self.wating_response:
+        for waiting_message in self.waiting_response:
             if message.get_conversation_id() == waiting_message.get_conversation_id():
                 response_message = waiting_message
                 break
         response_message.set_response(message)
-        self.wating_response.remove(response_message)
+        self.waiting_response.remove(response_message)
 
     def dispatch_data_task(self, message):
         thread_name = threading.current_thread().name
@@ -113,7 +121,6 @@ class ArbiAgentMessageToolkit:
             response = "ok"
 
         self.send_response_message(request_id, sender, response)
-
 
         self.received_message_map.pop(thread_name)
 
@@ -183,19 +190,19 @@ class ArbiAgentMessageToolkit:
         self.received_message_map.pop(thread_name)
 
     def send_response_message(self, request_id, sender, response):
-        message = ArbiAgentMessage(sender=self.agent_url, receiver=sender, action=AgentMessageAction.Response,
+        message = ArbiAgentMessage(sender=self.agent_uri, receiver=sender, action=AgentMessageAction.Response,
                                    content=response, conversation_id=request_id)
         self.adaptor.send(message)
 
     def request(self, receiver, content):
         message = self.create_message(receiver, AgentMessageAction.Request, content)
-        self.wating_response.append(message)
+        self.waiting_response.append(message)
         self.adaptor.send(message)
         return message.get_response()
 
     def query(self, receiver, content):
         message = self.create_message(receiver, AgentMessageAction.Query, content)
-        self.wating_response.append(message)
+        self.waiting_response.append(message)
         self.adaptor.send(message)
         response = message.get_response()
         return response
@@ -206,7 +213,7 @@ class ArbiAgentMessageToolkit:
 
     def subscribe(self, receiver, content):
         message = self.create_message(receiver, AgentMessageAction.Subscribe, content)
-        self.wating_response.append(message)
+        self.waiting_response.append(message)
         self.adaptor.send(message)
         return message.get_response()
 
@@ -224,7 +231,7 @@ class ArbiAgentMessageToolkit:
 
     # def request_stream(self, receiver, content):
     #     message = self.create_message(receiver, AgentMessageAction.ACTION_REQUEST_STREAM, content)
-    #     self.wating_response.append(message)
+    #     self.waiting_response.append(message)
     #     self.adaptor.send(message)
     #     return message.get_response()
 

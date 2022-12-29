@@ -81,7 +81,6 @@ class ZeroMQLTMAdaptor(LTMMessageAdaptor):
         data["command"] = "Long-Term-Memory"
 
         self.lock.acquire()
-
         json_message = json.dumps(data)
 
         self.producer.send_multipart([bytes("", encoding="utf-8"), bytes(str(json_message), encoding="utf-8")])
